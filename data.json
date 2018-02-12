@@ -1,0 +1,3 @@
+data = '[{"id": "0", "label": "Parent 1", "level": 0}]'
+data1 = '[{"id": "1", "label": "Parent 2", "level": 0}]'
+data2 = '[{"id": "0.1", "label": "Child", "level": 1}]'
