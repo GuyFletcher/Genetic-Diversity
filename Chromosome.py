@@ -13,7 +13,7 @@ class Chromosome:
     def __init__(self, entered_gene_size):
         self.name = "N/A"
         self.is_y = False
-        self.genes = [(None, [])] * 10
+        self.genes = [(None, [])] * 100
         gene_size = entered_gene_size
             
         #instantiates the nucleobases of a gene and determines link with disease, if applicable.
@@ -22,7 +22,7 @@ class Chromosome:
             for x in range(0, gene_size):
                 acid_list.append(self.gene_name_generator())
             
-            if random.randint(0,100) > 95:  #chance of gene linked disease set to less than 5%
+            if random.randint(0,100) > 98:  #chance of gene linked disease set to less than 5%
                 disease = Disease()
                 disease.name = "Syndrome"
                 disease.gene_linked = True

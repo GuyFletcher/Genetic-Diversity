@@ -30,7 +30,7 @@ class Individual:
         self.parents = [None, None]
    
     
-    
+'''  
 def mate(person1, person2):    
     if person1.chromosomes[39].is_y == True and person2.chromosomes[19].is_y == False:
         print("Mating occurred")
@@ -67,7 +67,7 @@ def mate(person1, person2):
 def initialize(individual, sex):
     
     for x in range (0,40):
-        individual.chromosomes[x] = Chromosome(10)
+        individual.chromosomes[x] = Chromosome(100)
     
     if sex == 0:
         individual.chromosomes[39].is_y = True
@@ -75,21 +75,28 @@ def initialize(individual, sex):
         pass    
 
 def compare(individual_one, individual_two):
-    similarity = 100.0
-    for x in range(0,40):
-        gene_compare_length = 0
-        if len(individual_one.chromosomes[x].genes) <= len(individual_two.chromosomes[x].genes):
-            gene_compare_length = len(individual_one.chromosomes[x].genes) 
-        else:
-            gene_compare_length = len(individual_two.chromosomes[x].genes)
-            
-        for y in range(0,gene_compare_length):  #TODO: change similarity based on extra genes
-            if individual_one.chromosomes[x].genes[y] == individual_two.chromosomes[x].genes[y]:
-                pass
-            else:
-                similarity -= 1
+    similarity = 0.0
+    gene_length = 100
+    gene_compare_length = len(individual_one.chromosomes[0].genes)
+    print(individual_one.chromosomes[0].genes[0][1][1])
+    for x in range(0,40):            
+        for y in range(0,gene_compare_length):
+            for z in range(0,gene_length):
+                if x < 39 and x%2: 
+                    if individual_one.chromosomes[x].genes[y][1][z] == individual_two.chromosomes[x].genes[y][1][z]:
+                        similarity += 1
+                    elif individual_one.chromosomes[x].genes[y][1][z] == individual_two.chromosomes[x+1].genes[y][1][z]:
+                        similarity +=1
+                    else:
+                        pass
+                else:
+                    if individual_one.chromosomes[x].genes[y][1][z] == individual_two.chromosomes[x].genes[y][1][z]:
+                        similarity += 1
+                    else:
+                        pass
+    similarity = (similarity/(gene_compare_length*gene_length*40))*100
     
-    print("Similarity between ", individual_one.name, " and ", individual_two.name, " is ", similarity)
+    print("Similarity between ", individual_one.name, " and ", individual_two.name, " is ", similarity, "%")
 
 parent1 = Individual("Parent 1")
 parent2 = Individual("Parent 2")
@@ -104,17 +111,18 @@ initialize(parent2, 1)
 child = mate(parent1, parent2)
 
 compare(parent1, parent2)
+compare(parent1, child)
 compare(parent2, child)
 
 new_dict = {"id": "0", "label": parent1.name, "level": 0}
 
 str1 = "data = '[" + json.dumps(new_dict,  ensure_ascii=False) + "]'"
-print (str)
+#print (str)
 
 #with open('data.json', 'w') as outfile:
 #    outfile.write(str1)
     
-print(parent1.children[0])
+#print(parent1.children[0])
     
 #with open('genes.txt', 'w') as outfile:
 #    for x in range(0,len(parent1.chromosomes[0].genes)):
@@ -138,7 +146,7 @@ make_file(parent1, parent2)
 #json.dumps(new_dict,  ensure_ascii=False)
     
 
-
+'''
 
 
 
