@@ -5,22 +5,9 @@ import random
 import json
 from Chromosome import Chromosome
 app = Flask(__name__)
-
-@app.route('/')
-def student():
-    return render_template('form.html')
-
-@app.route('/result',methods = ['POST', 'GET'])
-def result():
-    if request.method == 'POST':
-        result = request.form['Genes']
-        print(result)
-        return render_template('result.html')
-if __name__ == '__main__':
-    app.run(debug = True)
-    print(result)
     
-def main():
+    
+def main(num_genes, generatons, num_pop, is_disease):
     def mate(person1, person2):    
         if person1.chromosomes[39].is_y == True and person2.chromosomes[19].is_y == False:
             print("Mating occurred")
@@ -48,21 +35,13 @@ def main():
                 person2.children.append(child)
             child.parents[0] = person1
             child.parents[1] = person2
+            child.name = person1.name + " + " + person2.name
         else:
-            print("Both males, no mating occurred")
+            print("Error: Not Male + Female")
+            print(person1.chromosomes[39].is_y, person2.chromosomes[39].is_y)
             return None
 
-        return child
-
-    def initialize(individual, sex):
-        
-        for x in range (0,40):
-            individual.chromosomes[x] = Chromosome(100)
-        
-        if sex == 0:
-            individual.chromosomes[39].is_y = True
-        else:
-            pass    
+        return child   
 
     def compare(individual_one, individual_two):
         similarity = 0.0
@@ -87,23 +66,33 @@ def main():
         
         print("Similarity between ", individual_one.name, " and ", individual_two.name, " is ", similarity, "%")
 
-    parent1 = Individual("Parent 1")
-    parent2 = Individual("Parent 2")
-    child = Individual("Child")   
+        
+    males = []
+    females = []
+    children = []
+    
+    for i in range(0, int(num_pop/2)):
+        male_person = Individual()
+        male_person.initialize(0, num_genes, "Male " + str(i))
+        males.append(male_person)
+        female_person = Individual()
+        female_person.initialize(1, num_genes, "Female " + str(i))
+        females.append(female_person)
+        
+        
+    for i in range(0, int(num_pop/2)):
+        child = Individual()
+        child = mate(males[i], females[i])
+        children.append(child)
+        print(child.name)
+        
+     
 
-    initialize(parent1, 0)    
-    initialize(parent2, 1)
+    #compare(parent1, parent2)
+    #compare(parent1, child)
+    #compare(parent2, child)
 
-    #print(parent1.name, parent1.chromosomes[0].genes)
-    #print(parent2.name, parent2.chromosomes[0].genes)
-
-    child = mate(parent1, parent2)
-
-    compare(parent1, parent2)
-    compare(parent1, child)
-    compare(parent2, child)
-
-    new_dict = {"id": "0", "label": parent1.name, "level": 0}
+    new_dict = {"id": "0", "label": males[0].name, "level": 0}
 
     str1 = "data = '[" + json.dumps(new_dict,  ensure_ascii=False) + "]'"
     #print (str)
@@ -131,5 +120,24 @@ def main():
             outfile.write(str2 + "\n")
             outfile.write(str3 + "\n")
         
-    make_file(parent1, parent2)
+    make_file(males[0], females[0])
     #json.dumps(new_dict,  ensure_ascii=False)
+    
+    
+@app.route('/')
+def student():
+    return render_template('form.html')
+
+@app.route('/result',methods = ['POST', 'GET'])
+def result():
+    if request.method == 'POST':
+        num_genes = int(request.form['Genes'])
+        # add length of genes here
+        generations = int(request.form['Generations'])
+        population = int(request.form['Population'])
+        disease = request.form['Disease']
+        print(result, generations, disease)
+        main(num_genes, generations, population, disease)
+        return render_template('result.html')
+if __name__ == '__main__':
+    app.run(debug = True)

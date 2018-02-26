@@ -23,11 +23,22 @@ class Individual:
     Gene initialization
     '''
     
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
+        self.name = "Default"
         self.chromosomes = [None] * 40  #As this model is based loosely on mice this will always be 40
         self.children = [None]
         self.parents = [None, None]
+        
+    def initialize(self, sex, num_genes, name):
+        for x in range (0,40):
+            self.chromosomes[x] = Chromosome(num_genes)
+        
+        if sex == 0:
+            self.chromosomes[39].is_y = True
+        else:
+            pass 
+            
+        self.name = name
    
     
 '''  
