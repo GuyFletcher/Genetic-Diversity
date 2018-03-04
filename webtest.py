@@ -1,29 +1,42 @@
 from flask import Flask, render_template, request
-from Test import Individual
+from Individual import Individual
 import string
 import random
 import json
 from Chromosome import Chromosome
+from copy import copy
 app = Flask(__name__)
+        
+def mutate(individual, mutation_chance, gene_length):
+    for x in range(0,40):            
+        for y in range(0, gene_length):
+            for z in range(0,gene_length):
+                if x < 39 and x%2: 
+                    if random.randint(0, 100) < mutation_chance:
+                        individual.chromosomes[x].genes[y][1][z] = individual.chromosomes[x].gene_name_generator
+                        #print("Mutation")
     
     
-def main(num_genes, generatons, num_pop, is_disease):
+def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chance):
     def mate(person1, person2):    
-        if person1.chromosomes[39].is_y == True and person2.chromosomes[19].is_y == False:
-            print("Mating occurred")
+        #print(person1.name, person1.chromosomes[39].is_y, person2.name, person2.chromosomes[39].is_y)
+        if person1.chromosomes[39].is_y == True and person2.chromosomes[39].is_y == False:
             for x in range (0, 40, 2):
                 #Parent 1
                 if random.randint(0,1) == 0:
-                    child.chromosomes[x] = person1.chromosomes[x]
+                    child.chromosomes[x] = copy(person1.chromosomes[x])
                 else:
-                    child.chromosomes[x] = person1.chromosomes[x+1]
+                    child.chromosomes[x] = copy(person1.chromosomes[x+1])
                 #Parent 2
                 if random.randint(0,1) == 0:
-                    child.chromosomes[x+1] = person2.chromosomes[x]
+                    child.chromosomes[x+1] = copy(person2.chromosomes[x])
                 else:
-                    child.chromosomes[x+1] = person2.chromosomes[x+1]
-                    
-            child.name = "Child"
+                    child.chromosomes[x+1] = copy(person2.chromosomes[x+1])
+                 
+            if random.randint(0,1) == 0: 
+                child.chromosomes[39].is_y = True
+            else:
+                child.chromosomes[39].is_y = False             
             
             if person1.children[0] == None:
                 person1.children[0] = child
@@ -36,6 +49,8 @@ def main(num_genes, generatons, num_pop, is_disease):
             child.parents[0] = person1
             child.parents[1] = person2
             child.name = person1.name + " + " + person2.name
+            mutate(child, mutation_chance, gene_length)
+            print("Mating occurred", )
         else:
             print("Error: Not Male + Female")
             print(person1.chromosomes[39].is_y, person2.chromosomes[39].is_y)
@@ -66,35 +81,104 @@ def main(num_genes, generatons, num_pop, is_disease):
         
         print("Similarity between ", individual_one.name, " and ", individual_two.name, " is ", similarity, "%")
 
-        
+    def make_file(males, females, id, level):
+        info = []
+        connect = []
+        print("Made file")
+        for x in range(0, int(num_pop/2)):
+            if x > len(males)-1:
+                pass
+            else: 
+                males[x].id = id
+                info.append({"id": str(id), "label": males[x].name, "level": level})
+                if males[x].parents[0] == None:
+                    pass
+                else:
+                    connect.append({"from": str(males[x].parents[0].id), "to": str(id)})
+                    connect.append({"from": str(males[x].parents[1].id), "to": str(id)})
+                id += 1
+            if x > len(females)-1:
+                pass
+            else:
+                females[x].id = id
+                info.append({"id": str(id), "label": females[x].name, "level": level})
+                if females[x].parents[0] == None:
+                    pass
+                else:
+                    connect.append({"from": str(females[x].parents[0].id), "to": str(id)})
+                    connect.append({"from": str(females[x].parents[1].id), "to": str(id)})
+                id += 1
+        #str1 = "data = '[" + json.dumps(first,  ensure_ascii=False) + "]'"
+
+        #info_to_file = json.dumps(info,  ensure_ascii=False)
+        info_to_file = ",".join(map(str, info))
+        connections_to_file = ",".join(map(str, connect))
+        with open('nodes.json', 'a') as outfile:
+            outfile.write(info_to_file + ", \n")
+            
+        with open('connections.json', 'a') as outfile:
+            outfile.write(connections_to_file + ", \n")
+    
+    open('nodes.json', 'w').close()
+    open('connections.json', 'w').close()
     males = []
     females = []
     children = []
+    id = 0
+    level = 0
+    num_children = 10
     
     for i in range(0, int(num_pop/2)):
         male_person = Individual()
-        male_person.initialize(0, num_genes, "Male " + str(i))
+        male_person.initialize(0, num_genes)
+        male_person.name = "Male " + str(i)
         males.append(male_person)
         female_person = Individual()
-        female_person.initialize(1, num_genes, "Female " + str(i))
+        female_person.initialize(1, num_genes)
+        female_person.name = "Female " + str(i)
         females.append(female_person)
+        print("Check sex", male_person.chromosomes[39].is_y, female_person.chromosomes[39].is_y)
+    
+    for x in range(0, generations):
         
-        
-    for i in range(0, int(num_pop/2)):
-        child = Individual()
-        child = mate(males[i], females[i])
-        children.append(child)
-        print(child.name)
-        
-     
+        make_file(males, females, id, level)
+        id += 10
+        level += 1
+            
+        if x != generations-1:
+            if len(males) <= len(females):
+                num_children = len(males)
+            else:
+                num_children = len(females)
+            for i in range(0, num_children):
+                child = Individual()
+                child = mate(males[i], females[i])
+                children.append(child)
+                child = mate(males[i], females[i])
+                children.append(child)
+                
+            del males[:]
+            for i in range(0, len(males)):
+                print(males[i])
+            del females[:]
+            print(len(males))
+            for x in range(0, len(children)):
+                if children[x].chromosomes[39].is_y == True:
+                    males.append(children[x])
+                else:
+                    females.append(children[x])
+                    
+            print("Length of Males", len(males))
+            print("Length of Females", len(females))
+            del children[:]
 
     #compare(parent1, parent2)
     #compare(parent1, child)
     #compare(parent2, child)
 
-    new_dict = {"id": "0", "label": males[0].name, "level": 0}
+    #new_dict = {"id": "0", "label": males[0].name, "level": 0}
 
-    str1 = "data = '[" + json.dumps(new_dict,  ensure_ascii=False) + "]'"
+    #str1 = "data = '[" + json.dumps(new_dict,  ensure_ascii=False) + "]'"
     #print (str)
 
     #with open('data.json', 'w') as outfile:
@@ -108,19 +192,6 @@ def main(num_genes, generatons, num_pop, is_disease):
     #        outfile.write("\n")
         
         
-    def make_file(individual_one, individual_two):
-        first = {"id": "0", "label": individual_one.name, "level": 0}
-        second = {"id": "1", "label": individual_two.name, "level": 0}
-        third = {"id": "0.1", "label": individual_two.children[0].name, "level": 1}
-        str1 = "data = '[" + json.dumps(first,  ensure_ascii=False) + "]'"
-        str2 = "data1 = '[" + json.dumps(second,  ensure_ascii=False) + "]'"
-        str3 = "data2 = '[" + json.dumps(third,  ensure_ascii=False) + "]'"
-        with open('data.json', 'w') as outfile:
-            outfile.write(str1 + "\n")
-            outfile.write(str2 + "\n")
-            outfile.write(str3 + "\n")
-        
-    make_file(males[0], females[0])
     #json.dumps(new_dict,  ensure_ascii=False)
     
     
@@ -132,12 +203,13 @@ def student():
 def result():
     if request.method == 'POST':
         num_genes = int(request.form['Genes'])
-        # add length of genes here
+        gene_length = int(request.form['GLength'])
+        mutation = int(request.form['Mutate'])
         generations = int(request.form['Generations'])
         population = int(request.form['Population'])
         disease = request.form['Disease']
         print(result, generations, disease)
-        main(num_genes, generations, population, disease)
+        main(num_genes, gene_length, generations, population, disease, mutation)
         return render_template('result.html')
 if __name__ == '__main__':
     app.run(debug = True)
