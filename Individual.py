@@ -26,6 +26,7 @@ class Individual:
         self.children = [None]
         self.parents = [None, None]
         self.id = 0
+        self.has_mated = False
         
     def initialize(self, sex, num_genes):
         for x in range (0,40):

@@ -19,6 +19,7 @@ def mutate(individual, mutation_chance, gene_length):
     
 def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chance):
     def mate(person1, person2):    
+        child = Individual()
         #print(person1.name, person1.chromosomes[39].is_y, person2.name, person2.chromosomes[39].is_y)
         if person1.chromosomes[39].is_y == True and person2.chromosomes[39].is_y == False:
             for x in range (0, 40, 2):
@@ -85,7 +86,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         info = []
         connect = []
         print("Made file")
-        for x in range(0, int(num_pop/2)):
+        for x in range(0, num_pop):
             if x > len(males)-1:
                 pass
             else: 
@@ -111,13 +112,16 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         #str1 = "data = '[" + json.dumps(first,  ensure_ascii=False) + "]'"
 
         #info_to_file = json.dumps(info,  ensure_ascii=False)
+        
         info_to_file = ",".join(map(str, info))
         connections_to_file = ",".join(map(str, connect))
-        with open('nodes.json', 'a') as outfile:
-            outfile.write(info_to_file + ", \n")
-            
-        with open('connections.json', 'a') as outfile:
-            outfile.write(connections_to_file + ", \n")
+        
+        if len(info) != 0:
+            with open('nodes.json', 'a') as outfile:
+                outfile.write(info_to_file + ", \n")
+                
+            with open('connections.json', 'a') as outfile:
+                outfile.write(connections_to_file + ", \n")
     
     open('nodes.json', 'w').close()
     open('connections.json', 'w').close()
@@ -126,23 +130,21 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
     children = []
     id = 0
     level = 0
-    num_children = 10
     
     for i in range(0, int(num_pop/2)):
         male_person = Individual()
         male_person.initialize(0, num_genes)
-        male_person.name = "Male " + str(i)
+        male_person.name = "Male Gen 0"
         males.append(male_person)
         female_person = Individual()
         female_person.initialize(1, num_genes)
-        female_person.name = "Female " + str(i)
+        female_person.name = "Female Gen 0"
         females.append(female_person)
-        print("Check sex", male_person.chromosomes[39].is_y, female_person.chromosomes[39].is_y)
     
     for x in range(0, generations):
         
         make_file(males, females, id, level)
-        id += 10
+        id += num_pop
         level += 1
             
         if x != generations-1:
@@ -150,22 +152,26 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 num_children = len(males)
             else:
                 num_children = len(females)
+                
             for i in range(0, num_children):
-                child = Individual()
-                child = mate(males[i], females[i])
-                children.append(child)
-                child = mate(males[i], females[i])
-                children.append(child)
+                if males[i].has_mated == True or females[i].has_mated:
+                    pass  
+                else:
+                    child = mate(males[i], females[i])
+                    children.append(child)
+                    child2 = mate(males[i], females[i])
+                    children.append(child2)
+                    males[i].has_mated = True
+                    females[i].has_mated = True
                 
             del males[:]
-            for i in range(0, len(males)):
-                print(males[i])
             del females[:]
-            print(len(males))
             for x in range(0, len(children)):
                 if children[x].chromosomes[39].is_y == True:
+                    children[x].name = "Male Gen " + str(level)
                     males.append(children[x])
                 else:
+                    children[x].name = "Female Gen " + str(level)
                     females.append(children[x])
                     
             print("Length of Males", len(males))
