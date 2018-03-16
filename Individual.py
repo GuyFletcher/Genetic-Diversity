@@ -28,9 +28,9 @@ class Individual:
         self.id = 0
         self.has_mated = False
         
-    def initialize(self, sex, num_genes):
+    def initialize(self, sex, num_genes, gene_size):
         for x in range (0,40):
-            self.chromosomes[x] = Chromosome(num_genes)
+            self.chromosomes[x] = Chromosome(num_genes, gene_size)
         
         if sex == 0:
             self.chromosomes[39].is_y = True

@@ -11,7 +11,9 @@ Released under the MIT license: http://jsbin.mit-license.org
 <html>
     <head>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"></script>
-        <script type="text/javascript" src="data.json"></script>
+        <script type="text/javascript" src="nodes.js"></script>
+        <script type="text/javascript" src="connections.js"></script>
+        <script type="text/javascript" src="geneFile.js"></script>
         <script type="text/javascript" src="tree.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.css" />
         <style type="text/css">
@@ -25,10 +27,11 @@ Released under the MIT license: http://jsbin.mit-license.org
               background: white;
               border: 1px solid lightgray;
           }
-      </style>
+        </style>
         <script type="text/javascript">main()</script>
     </head>
     <body onload="main();">
         <div id="network"></div>
+        <p id="genes" style="white-space: pre-wrap;"></p>
     </body>
 </html>

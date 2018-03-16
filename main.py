@@ -5,16 +5,39 @@ import random
 import json
 from Chromosome import Chromosome
 from copy import copy
+import os
 app = Flask(__name__)
+
+dirname = os.path.dirname(__file__)
+nodeName = os.path.join(dirname, 'static','nodes.js')
+connectionsName = os.path.join(dirname, 'static','connections.js')
+geneFile = os.path.join(dirname, 'static','geneFile.js')
         
 def mutate(individual, mutation_chance, gene_length):
     for x in range(0,40):            
         for y in range(0, gene_length):
             for z in range(0,gene_length):
                 if x < 39 and x%2: 
-                    if random.randint(0, 100) < mutation_chance:
-                        individual.chromosomes[x].genes[y][1][z] = individual.chromosomes[x].gene_name_generator
+                    if random.randint(0, 1000) < mutation_chance:
+                        individual.chromosomes[x].genes[y][1][z] = individual.chromosomes[x].gene_name_generator()
                         #print("Mutation")
+                        
+                        
+def write_gene_to_file(person, gene_length):
+    string_of_genes = ""
+    with open(geneFile, 'a') as outfile:
+        for y in range(0,40):
+            string_of_genes += "Chromosome " + str(y+1) + "\n"
+            for i in range(0, len(person.chromosomes[y].genes)):
+                string_of_genes += str(i+1) + " "
+                for x in range(0, gene_length):
+                    string_of_genes += str(person.chromosomes[y].genes[i][1][x])
+                if person.chromosomes[y].genes[i][0] != None:
+                    string_of_genes += person.chromosomes[y].genes[i][0].name + " Lethality: " + str(person.chromosomes[y].genes[i][0].lethality) + " Mating Effect: " + str(person.chromosomes[y].genes[i][0].effect_on_mating)
+                string_of_genes += "\n"
+                
+            
+        outfile.write("{ id: " + str(person.id) + ', genes: `' + string_of_genes + '`}, ')
     
     
 def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chance):
@@ -92,6 +115,9 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
             else: 
                 males[x].id = id
                 info.append({"id": str(id), "label": males[x].name, "level": level})
+                #-----make genes file-----
+                write_gene_to_file(males[x], gene_length)
+                
                 if males[x].parents[0] == None:
                     pass
                 else:
@@ -103,6 +129,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
             else:
                 females[x].id = id
                 info.append({"id": str(id), "label": females[x].name, "level": level})
+                write_gene_to_file(females[x], gene_length)
                 if females[x].parents[0] == None:
                     pass
                 else:
@@ -117,14 +144,20 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         connections_to_file = ",".join(map(str, connect))
         
         if len(info) != 0:
-            with open('nodes.json', 'a') as outfile:
+            with open(nodeName, 'a') as outfile:
                 outfile.write(info_to_file + ", \n")
-                
-            with open('connections.json', 'a') as outfile:
+         
+        if len(connections_to_file) != 0:
+            with open(connectionsName, 'a') as outfile:
                 outfile.write(connections_to_file + ", \n")
     
-    open('nodes.json', 'w').close()
-    open('connections.json', 'w').close()
+    with open(nodeName, 'w+') as outfile:
+        outfile.write("nodeArray = [")
+    with open(connectionsName, 'w+') as outfile:
+        outfile.write("connections = [")
+        
+    with open(geneFile, 'w+') as outfile:
+        outfile.write("genes = [")
     males = []
     females = []
     children = []
@@ -133,11 +166,11 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
     
     for i in range(0, int(num_pop/2)):
         male_person = Individual()
-        male_person.initialize(0, num_genes)
+        male_person.initialize(0, num_genes, gene_length)
         male_person.name = "Male Gen 0"
         males.append(male_person)
         female_person = Individual()
-        female_person.initialize(1, num_genes)
+        female_person.initialize(1, num_genes, gene_length)
         female_person.name = "Female Gen 0"
         females.append(female_person)
     
@@ -177,7 +210,16 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
             print("Length of Males", len(males))
             print("Length of Females", len(females))
             del children[:]
+            
+        
+    with open(nodeName, 'a') as outfile:
+        outfile.write("]")
 
+    with open(connectionsName, 'a') as outfile:
+        outfile.write("]")
+        
+    with open(geneFile, 'a') as outfile:
+        outfile.write("]")
     #compare(parent1, parent2)
     #compare(parent1, child)
     #compare(parent2, child)

@@ -10,10 +10,10 @@ class Chromosome:
     active/inactive: Boolean
     Disease link: Disease object
     '''
-    def __init__(self, entered_gene_size):
+    def __init__(self, num_genes, entered_gene_size):
         self.name = "N/A"
         self.is_y = False
-        self.genes = [(None, [])] * 100
+        self.genes = [(None, [])] * num_genes
         gene_size = entered_gene_size
             
         #instantiates the nucleobases of a gene and determines link with disease, if applicable.
