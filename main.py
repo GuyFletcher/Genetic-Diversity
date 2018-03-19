@@ -4,6 +4,7 @@ import string
 import random
 import json
 from Chromosome import Chromosome
+from Disease import Disease
 from copy import copy
 import os
 app = Flask(__name__)
@@ -20,8 +21,27 @@ def mutate(individual, mutation_chance, num_gene, gene_length):
                 if x < 39 and x%2: 
                     if random.randint(0, 1000) < mutation_chance:
                         individual.chromosomes[x].genes[y][1][z] = individual.chromosomes[x].gene_name_generator()
+                        if random.randint(0, 1000) > 990:
+                            new_tuple = (Disease(), individual.chromosomes[x].genes[y][1])
+                            individual.chromosomes[x].genes[y] = new_tuple
+                            print("Disease by Mutation")
                         #print("Mutation")
-                        
+def check_disease(individual, num_gene, gene_length):
+    for x in range(0,40):            
+        for y in range(0, num_gene):
+            for z in range(0,gene_length):
+                if x < 39 and x%2: 
+                    if individual.chromosomes[x].genes[y][0] != None:
+                        rand_disease = random.randint(0,10000)
+                        if individual.chromosomes[x].genes[y][0].lethality > rand_disease:
+                            print("Lethal", rand_disease)
+                            individual.has_mated = True
+                            individual.name += "\nLethal"
+                        rand_disease = random.randint(0,10000)
+                        if individual.chromosomes[x].genes[y][0].effect_on_mating > rand_disease:
+                            print("Infertile", rand_disease)
+                            individual.has_mated = True
+                            individual.name += "\nInfertile"
                         
 def write_gene_to_file(person, gene_length):
     string_of_genes = ""
@@ -34,7 +54,7 @@ def write_gene_to_file(person, gene_length):
                 for x in range(0, gene_length):
                     string_of_genes += str(person.chromosomes[y].genes[i][1][x])
                 if person.chromosomes[y].genes[i][0] != None:
-                    string_of_genes += person.chromosomes[y].genes[i][0].name + " Lethality: " + str(person.chromosomes[y].genes[i][0].lethality) + " Mating Effect: " + str(person.chromosomes[y].genes[i][0].effect_on_mating)
+                    string_of_genes += " " + person.chromosomes[y].genes[i][0].name + " Lethality: " + str(person.chromosomes[y].genes[i][0].lethality) + " Mating Effect: " + str(person.chromosomes[y].genes[i][0].effect_on_mating)
                 string_of_genes += "\n"
                 
             
@@ -73,7 +93,6 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 person2.children.append(child)
             child.parents[0] = person1
             child.parents[1] = person2
-            child.name = person1.name + " + " + person2.name
             mutate(child, mutation_chance, num_genes, gene_length)
             #----Progenitor info-----
             if child.parents[0].progenitor[0] == None:
@@ -189,10 +208,12 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         male_person = Individual()
         male_person.initialize(0, num_genes, gene_length)
         male_person.name = "Male Gen 0"
+        check_disease(male_person, num_genes, gene_length)
         males.append(male_person)
         female_person = Individual()
         female_person.initialize(1, num_genes, gene_length)
         female_person.name = "Female Gen 0"
+        check_disease(female_person, num_genes, gene_length)
         females.append(female_person)
     
     for x in range(0, generations):
@@ -223,9 +244,11 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
             for x in range(0, len(children)):
                 if children[x].chromosomes[39].is_y == True:
                     children[x].name = "Male Gen " + str(level)
+                    check_disease(children[x], num_genes, gene_length)
                     males.append(children[x])
                 else:
                     children[x].name = "Female Gen " + str(level)
+                    check_disease(children[x], num_genes, gene_length)
                     females.append(children[x])
                     
             print("Length of Males", len(males))
@@ -241,27 +264,6 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         
     with open(geneFile, 'a') as outfile:
         outfile.write("]")
-    #compare(parent1, parent2)
-    #compare(parent1, child)
-    #compare(parent2, child)
-
-    #new_dict = {"id": "0", "label": males[0].name, "level": 0}
-
-    #str1 = "data = '[" + json.dumps(new_dict,  ensure_ascii=False) + "]'"
-    #print (str)
-
-    #with open('data.json', 'w') as outfile:
-    #    outfile.write(str1)
-        
-    #print(parent1.children[0])
-        
-    #with open('genes.txt', 'w') as outfile:
-    #    for x in range(0,len(parent1.chromosomes[0].genes)):
-    #        outfile.write(str(parent1.chromosomes[x].genes))
-    #        outfile.write("\n")
-        
-        
-    #json.dumps(new_dict,  ensure_ascii=False)
     
     
 @app.route('/')

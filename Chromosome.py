@@ -22,7 +22,7 @@ class Chromosome:
             for x in range(0, gene_size):
                 acid_list.append(self.gene_name_generator())
             
-            if random.randint(0,100) > 98:  #chance of gene linked disease set to less than 5%
+            if random.randint(0,1000) > 998:  #chance of gene linked disease set to 1%
                 disease = Disease()
                 disease.name = "Syndrome"
                 disease.gene_linked = True
