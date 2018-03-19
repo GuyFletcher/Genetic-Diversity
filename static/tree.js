@@ -42,7 +42,9 @@ var stuff = ["0", "Gen 1", 0];
         hierarchical: {
           direction: 'UD',
           nodeSpacing: 100,
-          levelSeparation: 50
+          levelSeparation: 50, 
+          sortMethod: 'hubSize',
+          edgeMinimization : false
         },
         improvedLayout: true
       },
@@ -67,7 +69,7 @@ var stuff = ["0", "Gen 1", 0];
                 var newNode = graph.nodes.get(nodeID);
                 newNode.color = {
                   border: '#000000',
-                  background: '#000099'
+                  //background: '#000099'
                 }
                 graph.nodes.update(newNode);
                 graph.nodes.update(newNode);

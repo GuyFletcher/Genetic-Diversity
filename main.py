@@ -13,9 +13,9 @@ nodeName = os.path.join(dirname, 'static','nodes.js')
 connectionsName = os.path.join(dirname, 'static','connections.js')
 geneFile = os.path.join(dirname, 'static','geneFile.js')
         
-def mutate(individual, mutation_chance, gene_length):
+def mutate(individual, mutation_chance, num_gene, gene_length):
     for x in range(0,40):            
-        for y in range(0, gene_length):
+        for y in range(0, num_gene):
             for z in range(0,gene_length):
                 if x < 39 and x%2: 
                     if random.randint(0, 1000) < mutation_chance:
@@ -25,9 +25,10 @@ def mutate(individual, mutation_chance, gene_length):
                         
 def write_gene_to_file(person, gene_length):
     string_of_genes = ""
+    string_of_genes += "Progenitor similarity: " + str(person.prog_sim) + "\nParent Similarity: " + str(person.parent_sim)
     with open(geneFile, 'a') as outfile:
         for y in range(0,40):
-            string_of_genes += "Chromosome " + str(y+1) + "\n"
+            string_of_genes += "\nChromosome " + str(y+1) + "\n"
             for i in range(0, len(person.chromosomes[y].genes)):
                 string_of_genes += str(i+1) + " "
                 for x in range(0, gene_length):
@@ -73,8 +74,28 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
             child.parents[0] = person1
             child.parents[1] = person2
             child.name = person1.name + " + " + person2.name
-            mutate(child, mutation_chance, gene_length)
-            print("Mating occurred", )
+            mutate(child, mutation_chance, num_genes, gene_length)
+            #----Progenitor info-----
+            if child.parents[0].progenitor[0] == None:
+                child.progenitor[0] = copy(person1)
+                child.progenitor[1] = copy(person2)
+                sim = 0.0
+                sim = compare(child, person1)
+                sim += compare(child, person2)
+                child.prog_sim = (sim/2)
+                child.parent_sim = (sim/2)
+            else:
+                child.progenitor = person1.progenitor + person2.progenitor
+                sim = 0.0
+                for i in range(0,len(child.progenitor)):
+                    sim += compare(child, child.progenitor[i])
+                
+                child.prog_sim = (sim/len(child.progenitor))
+                sim = compare(child, person1)
+                sim += compare(child, person2)
+                child.parent_sim = (sim/2)
+            
+            print("Mating occurred")
         else:
             print("Error: Not Male + Female")
             print(person1.chromosomes[39].is_y, person2.chromosomes[39].is_y)
@@ -84,7 +105,6 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
 
     def compare(individual_one, individual_two):
         similarity = 0.0
-        gene_length = 100
         gene_compare_length = len(individual_one.chromosomes[0].genes)
         for x in range(0,40):            
             for y in range(0,gene_compare_length):
@@ -103,7 +123,8 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                             pass
         similarity = (similarity/(gene_compare_length*gene_length*40))*100
         
-        print("Similarity between ", individual_one.name, " and ", individual_two.name, " is ", similarity, "%")
+        #print("Similarity between ", individual_one.name, " and ", individual_two.name, " is ", similarity, "%")
+        return similarity
 
     def make_file(males, females, id, level):
         info = []
@@ -259,5 +280,16 @@ def result():
         print(result, generations, disease)
         main(num_genes, gene_length, generations, population, disease, mutation)
         return render_template('result.html')
+        
+@app.after_request
+def add_header(response):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
+    response.headers['Cache-Control'] = 'public, max-age=0'
+    return response
+        
 if __name__ == '__main__':
     app.run(debug = True)

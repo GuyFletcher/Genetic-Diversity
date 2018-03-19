@@ -12,6 +12,7 @@ Released under the MIT license: http://jsbin.mit-license.org
         <script type="text/javascript" src="{{url_for('static', filename='nodes.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='connections.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='tree.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='geneFile.js')}}"></script>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.css" />
         <style type="text/css">
           body {
@@ -29,5 +30,6 @@ Released under the MIT license: http://jsbin.mit-license.org
     </head>
     <body onload="main();">
         <div id="network"></div>
+        <p id="genes" style="white-space: pre-wrap;"></p>
     </body>
 </html>

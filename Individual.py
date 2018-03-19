@@ -25,6 +25,9 @@ class Individual:
         self.chromosomes = [None] * 40  #As this model is based loosely on mice this will always be 40
         self.children = [None]
         self.parents = [None, None]
+        self.progenitor = [None, None]
+        self.prog_sim = 0.0
+        self.parent_sim = 0.0
         self.id = 0
         self.has_mated = False
         
