@@ -6,6 +6,7 @@ import json
 from Chromosome import Chromosome
 from Disease import Disease
 from copy import copy
+import pytest
 import os
 app = Flask(__name__)
 
@@ -13,6 +14,52 @@ dirname = os.path.dirname(__file__)
 nodeName = os.path.join(dirname, 'static','nodes.js')
 connectionsName = os.path.join(dirname, 'static','connections.js')
 geneFile = os.path.join(dirname, 'static','geneFile.js')
+
+def tally(trait_list):
+    counter = {}
+    
+    for trait in trait_list:
+        if trait in counter:
+            counter[trait] += 1
+    else:
+        counter[trait] = 1
+        
+    popular_words = sorted(counter, key = counter.get, reverse = True)
+    
+    
+    
+    return popular_words[:1][0]
+
+def tally_traits(individual, num_gene, gene_length):
+    hair_trait = []
+    eye_trait = []
+    skin_trait = []
+    
+    for x in range(0,40):
+        for y in range(0,num_gene):
+            for z in range(0,gene_length):
+                if isinstance(individual.chromosomes[x].genes[y][0], str):
+                    if individual.chromosomes[x].genes[y][0] in ["Hair: None", "Hair: Brown", "Hair: White", "Hair: Black", "Hair: Blond"]:
+                        hair_trait.append(individual.chromosomes[x].genes[y][0])
+                    if individual.chromosomes[x].genes[y][0] in ["Eye: Blue", "Eye: Red", "Eye: Green", "Eye: Hazel", "Eye: Yellow"]:
+                        eye_trait.append(individual.chromosomes[x].genes[y][0])
+                    if individual.chromosomes[x].genes[y][0] in ["Skin: White", "Skin: Black"]:
+                        skin_trait.append(individual.chromosomes[x].genes[y][0])
+    
+    return [tally(hair_trait), tally(eye_trait), tally(skin_trait)]
+
+def test_tally_traits():
+    individual = Individual()
+    num_gene = 2
+    gene_length = 2
+    individual.initialize(0, num_gene, gene_length)
+    bob = tally_traits(individual, 2, 2)
+    if len(bob) != 3:
+        pytest.fail("Returned list not long enough")
+    assert bob[0] in ["Hair: None", "Hair: Brown", "Hair: White", "Hair: Black", "Hair: Blond"]
+    assert bob[1] in ["Eye: Blue", "Eye: Red", "Eye: Green", "Eye: Hazel", "Eye: Yellow"]
+    assert bob[2] in ["Skin: White", "Skin: Black"]
+
         
 def mutate(individual, mutation_chance, num_gene, gene_length):
     for x in range(0,40):            
@@ -46,6 +93,8 @@ def check_disease(individual, num_gene, gene_length):
 def write_gene_to_file(person, gene_length):
     string_of_genes = ""
     string_of_genes += "Progenitor similarity: " + str(person.prog_sim) + "\nParent Similarity: " + str(person.parent_sim)
+    traits = tally_traits(person, len(person.chromosomes[0].genes), gene_length)
+    string_of_genes += "\n" + traits[0] + "\n" + traits[1] + "\n" + traits[2] + "\n"
     with open(geneFile, 'a') as outfile:
         for y in range(0,40):
             string_of_genes += "\nChromosome " + str(y+1) + "\n"

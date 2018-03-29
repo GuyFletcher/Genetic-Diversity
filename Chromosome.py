@@ -16,7 +16,7 @@ class Chromosome:
         self.is_y = False
         self.genes = [(None, [])] * num_genes
         gene_size = entered_gene_size
-        self.traits = { 0:"None", 1:"Hair: Brown", 2:"Hair: White", 3:"Hair: Black", 4:"Hair: Blond",
+        self.traits = { 0:"Hair: None", 1:"Hair: Brown", 2:"Hair: White", 3:"Hair: Black", 4:"Hair: Blond",
         5:"Eye: Blue", 6:"Eye: Red", 7:"Eye: Green", 8:"Eye: Hazel", 9:"Eye: Yellow",
         10:"Skin: White", 11:"Skin: Black"}
             
