@@ -1,0 +1,4 @@
+{
+  "chromosome.py::test_pheno": true,
+  "chromosome.py::test_pheno_fail": true
+}

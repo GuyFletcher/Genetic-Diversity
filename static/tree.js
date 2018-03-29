@@ -42,7 +42,7 @@ var stuff = ["0", "Gen 1", 0];
         hierarchical: {
           direction: 'UD',
           nodeSpacing: 100,
-          levelSeparation: 50, 
+          levelSeparation: 250, 
           sortMethod: 'hubSize',
           edgeMinimization : false
         },

@@ -31,7 +31,7 @@ def check_disease(individual, num_gene, gene_length):
         for y in range(0, num_gene):
             for z in range(0,gene_length):
                 if x < 39 and x%2: 
-                    if individual.chromosomes[x].genes[y][0] != None:
+                    if isinstance(individual.chromosomes[x].genes[y][0], Disease):
                         rand_disease = random.randint(0,10000)
                         if individual.chromosomes[x].genes[y][0].lethality > rand_disease:
                             print("Lethal", rand_disease)
@@ -53,8 +53,11 @@ def write_gene_to_file(person, gene_length):
                 string_of_genes += str(i+1) + " "
                 for x in range(0, gene_length):
                     string_of_genes += str(person.chromosomes[y].genes[i][1][x])
-                if person.chromosomes[y].genes[i][0] != None:
+                if isinstance(person.chromosomes[y].genes[i][0], Disease):
                     string_of_genes += " " + person.chromosomes[y].genes[i][0].name + " Lethality: " + str(person.chromosomes[y].genes[i][0].lethality) + " Mating Effect: " + str(person.chromosomes[y].genes[i][0].effect_on_mating)
+                else: 
+                    string_of_genes += " " + person.chromosomes[y].genes[i][0]
+                    
                 string_of_genes += "\n"
                 
             
@@ -267,7 +270,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
     
     
 @app.route('/')
-def student():
+def run_web():
     return render_template('form.html')
 
 @app.route('/result',methods = ['POST', 'GET'])
@@ -278,20 +281,21 @@ def result():
         mutation = int(request.form['Mutate'])
         generations = int(request.form['Generations'])
         population = int(request.form['Population'])
-        disease = request.form['Disease']
+        disease = ""
         print(result, generations, disease)
         main(num_genes, gene_length, generations, population, disease, mutation)
         return render_template('result.html')
         
 @app.after_request
-def add_header(response):
+def add_header(r):
     """
     Add headers to both force latest IE rendering engine or Chrome Frame,
     and also to cache the rendered page for 10 minutes.
     """
-    response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
-    response.headers['Cache-Control'] = 'public, max-age=0'
-    return response
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0, no-cache, no-store, must-revalidate'
+    return r
         
 if __name__ == '__main__':
     app.run(debug = True)
