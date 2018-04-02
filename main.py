@@ -15,6 +15,23 @@ nodeName = os.path.join(dirname, 'static','nodes.js')
 connectionsName = os.path.join(dirname, 'static','connections.js')
 geneFile = os.path.join(dirname, 'static','geneFile.js')
 
+def test_select_breed():
+    test = 0
+
+def select_breed(people, num_gene, gene_length):
+    disease_count = 0
+    counter = {}
+    for i in range(0,len(people)):
+        for x in range(0,40):
+            for y in range(0, num_gene):
+                for z in range(0,gene_length):
+                    if isinstance(people[i].chromosomes[x].genes[y][0], Disease):
+                        disease_count += 1
+        counter[people[i]] = disease_count
+        
+    sorted_people = sorted(counter, key = counter.get, reverse = False)
+    return sorted_people
+
 def tally(trait_list):
     counter = {}
     
@@ -25,8 +42,6 @@ def tally(trait_list):
         counter[trait] = 1
         
     popular_words = sorted(counter, key = counter.get, reverse = True)
-    
-    
     
     return popular_words[:1][0]
 
@@ -116,25 +131,25 @@ def write_gene_to_file(person, gene_length):
 def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chance):
     def mate(person1, person2):    
         child = Individual()
-        #print(person1.name, person1.chromosomes[39].is_y, person2.name, person2.chromosomes[39].is_y)
+        
+        #enforce person1 as male
+        if person1.chromosomes[39].is_y != True:
+            inter = person1
+            person1 = person2
+            person2 = inter      
+        
         if person1.chromosomes[39].is_y == True and person2.chromosomes[39].is_y == False:
-            for x in range (0, 40, 2):
-                #Parent 1
-                if random.randint(0,1) == 0:
+            if random.randint(0,1) == 0:
+                for x in range (0, 40, 2):
                     child.chromosomes[x] = copy(person1.chromosomes[x])
-                else:
-                    child.chromosomes[x] = copy(person1.chromosomes[x+1])
-                #Parent 2
-                if random.randint(0,1) == 0:
-                    child.chromosomes[x+1] = copy(person2.chromosomes[x])
-                else:
                     child.chromosomes[x+1] = copy(person2.chromosomes[x+1])
-                 
-            if random.randint(0,1) == 0: 
-                child.chromosomes[39].is_y = True
             else:
-                child.chromosomes[39].is_y = False             
-            
+                for x in range (0, 40, 2):
+                    child.chromosomes[x+1] = copy(person1.chromosomes[x+1])
+                    child.chromosomes[x] = copy(person2.chromosomes[x]) 
+                    
+                    
+            print(person1.chromosomes[39].is_y, child.chromosomes[39].is_y)
             if person1.children[0] == None:
                 person1.children[0] = child
             else:
@@ -166,7 +181,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 sim += compare(child, person2)
                 child.parent_sim = (sim/2)
             
-            print("Mating occurred")
+            #print("Mating occurred")
         else:
             print("Error: Not Male + Female")
             print(person1.chromosomes[39].is_y, person2.chromosomes[39].is_y)
@@ -174,24 +189,16 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
 
         return child   
 
-    def compare(individual_one, individual_two):
+    def compare(individual_one, individual_two):    
         similarity = 0.0
         gene_compare_length = len(individual_one.chromosomes[0].genes)
         for x in range(0,40):            
             for y in range(0,gene_compare_length):
                 for z in range(0,gene_length):
-                    if x < 39 and x%2: 
-                        if individual_one.chromosomes[x].genes[y][1][z] == individual_two.chromosomes[x].genes[y][1][z]:
-                            similarity += 1
-                        elif individual_one.chromosomes[x].genes[y][1][z] == individual_two.chromosomes[x+1].genes[y][1][z]:
-                            similarity +=1
-                        else:
-                            pass
-                    else:
-                        if individual_one.chromosomes[x].genes[y][1][z] == individual_two.chromosomes[x].genes[y][1][z]:
-                            similarity += 1
-                        else:
-                            pass
+                    if individual_one.chromosomes[x].genes[y][1][z] == individual_two.chromosomes[x].genes[y][1][z]:
+                        similarity += 1
+                            
+                            
         similarity = (similarity/(gene_compare_length*gene_length*40))*100
         
         #print("Similarity between ", individual_one.name, " and ", individual_two.name, " is ", similarity, "%")
@@ -206,7 +213,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 pass
             else: 
                 males[x].id = id
-                info.append({"id": str(id), "label": males[x].name, "level": level})
+                info.append({"id": str(id), "label": males[x].name, "level": level, "sim": males[x].prog_sim})
                 #-----make genes file-----
                 write_gene_to_file(males[x], gene_length)
                 
@@ -220,7 +227,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 pass
             else:
                 females[x].id = id
-                info.append({"id": str(id), "label": females[x].name, "level": level})
+                info.append({"id": str(id), "label": females[x].name, "level": level, "sim": females[x].prog_sim})
                 write_gene_to_file(females[x], gene_length)
                 if females[x].parents[0] == None:
                     pass
@@ -273,6 +280,14 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         make_file(males, females, id, level)
         id += num_pop
         level += 1
+        
+        random.shuffle(males)
+        random.shuffle(females)
+        
+        selective = True
+        if selective:
+            males = select_breed(males, num_genes, gene_length)
+            females = select_breed(females, num_genes, gene_length)
             
         if x != generations-1:
             if len(males) <= len(females):

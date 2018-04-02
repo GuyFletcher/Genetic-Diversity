@@ -53,26 +53,33 @@ var stuff = ["0", "Gen 1", 0];
       
       };
     var network = new vis.Network(document.getElementById("network"), graph, options);
+    
+    for(i=0;i<nodeArray.length;i++) 
+    {
+        color = (Math.floor((nodeArray[i].sim/100)*255))
+        
+        if(color == 0)
+            color = 255
+        
+        color_string = "rgba(255,255,"+ color +", 255)"
+        console.log(color_string)
+        var newNode = graph.nodes.get(nodeArray[i].id);
+        newNode.color = {
+          border: '#000000',
+          background: color_string
+        }
+        graph.nodes.update(newNode);
+        graph.nodes.update(newNode);
+    }
+    
     network.on( 'click', function(properties) {
         console.log(genes.length);
         for(i=0;i<nodeArray.length;i++)
         {
-            console.log(nodeArray[i].id)
-            console.log(properties['nodes'])
             if (nodeArray[i].id == properties['nodes'])
             {
                 document.getElementById('genes').innerHTML = '<h2>Click event:</h2>' + genes[i].genes;//get node index
                 console.log('Done');
-                
-                //color stuff, move later
-                var nodeID = properties['nodes']['0']
-                var newNode = graph.nodes.get(nodeID);
-                newNode.color = {
-                  border: '#000000',
-                  //background: '#000099'
-                }
-                graph.nodes.update(newNode);
-                graph.nodes.update(newNode);
             }
         }
     
