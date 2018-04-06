@@ -31,6 +31,22 @@ def select_breed(people, num_gene, gene_length):
         
     sorted_people = sorted(counter, key = counter.get, reverse = False)
     return sorted_people
+    
+def test_select_breed():
+    num_gene = 2
+    gene_length = 2
+    person_1 = Individual()
+    person_1.initialize(0, num_gene, gene_length)
+    people = []
+    people.append(person_1)
+    person_2 = Individual()
+    person_2.initialize(0, num_gene, gene_length)
+    for i in range(0,40):
+        person_2.chromosomes[i].genes[0] = (Disease, person_2.chromosomes[i].genes[0])
+        
+    people.append(person_2)
+    test = select_breed(people, num_gene, gene_length)
+    assert person_2 == test[1]
 
 def tally(trait_list):
     counter = {}

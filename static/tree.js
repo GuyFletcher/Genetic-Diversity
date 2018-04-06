@@ -1,3 +1,21 @@
+var test = require('tape')
+
+test("color value test", function(assert) {
+    assert.plan(2);
+    assert.equal(returnColor(100), "rgba(255,255,255,255)", "Expect 255")
+    assert.equal(returnColor(50), "rgba(127,127,255,255)", "Expect 127")
+    assert.end();
+});
+
+function returnColor(simVal) {
+    colorVal = (Math.floor((simVal/100)*255));
+    if(colorVal <= 0)
+        colorVal = 255;
+    
+    color_string = "rgba(" + colorVal + "," + colorVal + ",255,255)";
+    return color_string
+}
+
 function main() {
 
 //var nodes = JSON.parse(nodes);
@@ -52,20 +70,8 @@ function main() {
     var network = new vis.Network(document.getElementById("network"), graph, options);
     
     for(i=0;i<nodeArray.length;i++) 
-    {
-        blue_color = 255 - (Math.floor((nodeArray[i].sim/100)*255))
-        red_color = (Math.floor((nodeArray[i].sim/100)*255))
-        green_color = (Math.floor((nodeArray[i].sim/100)*255))
-        if(blue_color <= 0)
-            blue_color = 255
-        if(red_color <= 0)
-            red_color = 255
-        if(green_color <= 0)
-            green_color = 255
-        
-        color_string = "rgba(255," + green_color + "," + red_color +", 255)"
-        //color_string = "rgba(" + blue_color + "," + green_color + "," + red_color +", 255)"
-        //console.log(color_string)
+    {     
+        color_string = returnColor(nodeArray[i].sim)
         var newNode = graph.nodes.get(nodeArray[i].id);
         newNode.color = {
           border: '#000000',
