@@ -15,9 +15,6 @@ nodeName = os.path.join(dirname, 'static','nodes.js')
 connectionsName = os.path.join(dirname, 'static','connections.js')
 geneFile = os.path.join(dirname, 'static','geneFile.js')
 
-def test_select_breed():
-    test = 0
-
 def select_breed(people, num_gene, gene_length):
     disease_count = 0
     counter = {}
@@ -97,13 +94,14 @@ def mutate(individual, mutation_chance, num_gene, gene_length):
         for y in range(0, num_gene):
             for z in range(0,gene_length):
                 if x < 39 and x%2: 
-                    if random.randint(0, 1000) < mutation_chance:
+                    if random.randint(0, 10000) < mutation_chance/100:
                         individual.chromosomes[x].genes[y][1][z] = individual.chromosomes[x].gene_name_generator()
-                        if random.randint(0, 1000) > 990:
+                        if random.randint(0, 10000) > 9999:
                             new_tuple = (Disease(), individual.chromosomes[x].genes[y][1])
                             individual.chromosomes[x].genes[y] = new_tuple
                             print("Disease by Mutation")
-                        #print("Mutation")
+                        
+                        
 def check_disease(individual, num_gene, gene_length):
     for x in range(0,40):            
         for y in range(0, num_gene):
@@ -164,8 +162,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                     child.chromosomes[x+1] = copy(person1.chromosomes[x+1])
                     child.chromosomes[x] = copy(person2.chromosomes[x]) 
                     
-                    
-            print(person1.chromosomes[39].is_y, child.chromosomes[39].is_y)
+            
             if person1.children[0] == None:
                 person1.children[0] = child
             else:
@@ -188,6 +185,9 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 child.parent_sim = (sim/2)
             else:
                 child.progenitor = person1.progenitor + person2.progenitor
+                print("Progenitors: ",len(child.progenitor))
+                child.progenitor = list(set(child.progenitor))
+                print("Progenitors: ",len(child.progenitor))
                 sim = 0.0
                 for i in range(0,len(child.progenitor)):
                     sim += compare(child, child.progenitor[i])
@@ -292,6 +292,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         females.append(female_person)
     
     for x in range(0, generations):
+        print("Gen ", x)
         
         make_file(males, females, id, level)
         id += num_pop
