@@ -284,24 +284,18 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
     id = 0
     level = 0
     
-    male_person = Individual()
-    male_person.initialize(0, num_genes, gene_length)
-    male_person.name = "Male Gen 0"
-    check_disease(male_person, num_genes, gene_length)
-    female_person = Individual()
-    female_person.initialize(1, num_genes, gene_length)
-    female_person.name = "Female Gen 0"
-    check_disease(female_person, num_genes, gene_length)
-    
     for i in range(0, int(num_pop/2)):
-        males.append(copy(male_person))
-        females.append(copy(female_person))
-    '''
-    newDis = Disease()
-    newDis.lethality = 0
-    newDis.effect_on_mating = 3
-    males[4].chromosomes[0].genes[0] = (newDis, males[4].chromosomes[0].genes[0][1])
-    '''
+        male_person = Individual()
+        male_person.initialize(0, num_genes, gene_length)
+        male_person.name = "Male Gen 0"
+        check_disease(male_person, num_genes, gene_length)
+        males.append(male_person)
+        female_person = Individual()
+        female_person.initialize(1, num_genes, gene_length)
+        female_person.name = "Female Gen 0"
+        check_disease(female_person, num_genes, gene_length)
+        females.append(female_person)
+
     for x in range(0, generations):
         print("Gen ", x)
         
@@ -312,7 +306,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         random.shuffle(males)
         random.shuffle(females)
         
-        selective = True
+        selective = False
         if selective:
             males = select_breed(males, num_genes, gene_length)
             females = select_breed(females, num_genes, gene_length)
