@@ -1,9 +1,9 @@
-var test = require('tape')
+var test = require('tape');
 
 test("color value test", function(assert) {
     assert.plan(2);
-    assert.equal(returnColor(100), "rgba(255,255,255,255)", "Expect 255")
-    assert.equal(returnColor(50), "rgba(127,127,255,255)", "Expect 127")
+    assert.equal(returnColor(100), "rgba(255,255,255,255)", "Expect 255");
+    assert.equal(returnColor(50), "rgba(127,127,255,255)", "Expect 127");
     assert.end();
 });
 
@@ -71,7 +71,14 @@ function main() {
     
     for(i=0;i<nodeArray.length;i++) 
     {     
-        color_string = returnColor(nodeArray[i].sim)
+        if(nodeArray[i].disease == "True")
+        {
+            color_string = "rgba(255,0,0,255)"
+        }
+        else {
+            color_string = returnColor(nodeArray[i].sim)
+        }
+        
         var newNode = graph.nodes.get(nodeArray[i].id);
         newNode.color = {
           border: '#000000',

@@ -103,21 +103,29 @@ def mutate(individual, mutation_chance, num_gene, gene_length):
                         
                         
 def check_disease(individual, num_gene, gene_length):
+    disease = False
+    
     for x in range(0,40):            
         for y in range(0, num_gene):
             for z in range(0,gene_length):
                 if x < 39 and x%2: 
                     if isinstance(individual.chromosomes[x].genes[y][0], Disease):
+                        disease = True
                         rand_disease = random.randint(0,10000)
                         if individual.chromosomes[x].genes[y][0].lethality > rand_disease:
                             print("Lethal", rand_disease)
                             individual.has_mated = True
                             individual.name += "\nLethal"
+                            return disease
+                        
                         rand_disease = random.randint(0,10000)
                         if individual.chromosomes[x].genes[y][0].effect_on_mating > rand_disease:
                             print("Infertile", rand_disease)
                             individual.has_mated = True
                             individual.name += "\nInfertile"
+                            return disease
+                        
+    return disease
                         
 def write_gene_to_file(person, gene_length):
     string_of_genes = ""
@@ -185,9 +193,9 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 child.parent_sim = (sim/2)
             else:
                 child.progenitor = person1.progenitor + person2.progenitor
-                print("Progenitors: ",len(child.progenitor))
+                #print("Progenitors: ",len(child.progenitor))
                 child.progenitor = list(set(child.progenitor))
-                print("Progenitors: ",len(child.progenitor))
+                #print("Progenitors: ",len(child.progenitor))
                 sim = 0.0
                 for i in range(0,len(child.progenitor)):
                     sim += compare(child, child.progenitor[i])
@@ -229,7 +237,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 pass
             else: 
                 males[x].id = id
-                info.append({"id": str(id), "label": males[x].name, "level": level, "sim": males[x].prog_sim})
+                info.append({"id": str(id), "label": males[x].name, "level": level, "sim": males[x].prog_sim, "disease": str(check_disease(males[x], num_genes, gene_length))})
                 #-----make genes file-----
                 write_gene_to_file(males[x], gene_length)
                 
@@ -243,7 +251,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                 pass
             else:
                 females[x].id = id
-                info.append({"id": str(id), "label": females[x].name, "level": level, "sim": females[x].prog_sim})
+                info.append({"id": str(id), "label": females[x].name, "level": level, "sim": females[x].prog_sim, "disease": str(check_disease(females[x], num_genes, gene_length))})
                 write_gene_to_file(females[x], gene_length)
                 if females[x].parents[0] == None:
                     pass
@@ -251,9 +259,6 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
                     connect.append({"from": str(females[x].parents[0].id), "to": str(id)})
                     connect.append({"from": str(females[x].parents[1].id), "to": str(id)})
                 id += 1
-        #str1 = "data = '[" + json.dumps(first,  ensure_ascii=False) + "]'"
-
-        #info_to_file = json.dumps(info,  ensure_ascii=False)
         
         info_to_file = ",".join(map(str, info))
         connections_to_file = ",".join(map(str, connect))
@@ -290,7 +295,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         female_person.name = "Female Gen 0"
         check_disease(female_person, num_genes, gene_length)
         females.append(female_person)
-    
+
     for x in range(0, generations):
         print("Gen ", x)
         
@@ -301,7 +306,7 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         random.shuffle(males)
         random.shuffle(females)
         
-        selective = True
+        selective = False
         if selective:
             males = select_breed(males, num_genes, gene_length)
             females = select_breed(females, num_genes, gene_length)
