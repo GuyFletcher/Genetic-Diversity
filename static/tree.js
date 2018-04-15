@@ -89,11 +89,12 @@ function main() {
     }
     
     network.on( 'click', function(properties) {
-        console.log(genes.length);
+        
         for(i=0;i<nodeArray.length;i++)
         {
             if (nodeArray[i].id == properties['nodes'])
             {
+                console.log(nodeArray[i].disease);
                 document.getElementById('genes').innerHTML = '<h2>Click event:</h2>' + genes[i].genes;//get node index
                 console.log('Done');
             }
