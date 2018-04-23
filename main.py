@@ -153,7 +153,7 @@ def write_gene_to_file(person, gene_length):
         outfile.write("{ id: " + str(person.id) + ', genes: `' + string_of_genes + '`}, ')
     
     
-def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chance):
+def main(num_genes, gene_length, generations, num_pop, selective, mutation_chance):
     def mate(person1, person2):    
         child = Individual()
         
@@ -309,8 +309,8 @@ def main(num_genes, gene_length, generations, num_pop, is_disease, mutation_chan
         random.shuffle(males)
         random.shuffle(females)
         
-        selective = True
         if selective:
+            print("Selective Breeding")
             males = select_breed(males, num_genes, gene_length)
             females = select_breed(females, num_genes, gene_length)
             
@@ -368,19 +368,25 @@ def result():
         num_genes = int(request.form['Genes'])
         gene_length = int(request.form['GLength'])
         mutation = int(request.form['Mutate'])
+        #Mutation of 300 = 3% chance per nucleotide, which is very high.
+        if mutation > 300:
+            mutation = 300
         generations = int(request.form['Generations'])
+        if generations > 10:
+            generations = 10
         population = int(request.form['Population'])
-        disease = ""
-        print(result, generations, disease)
-        main(num_genes, gene_length, generations, population, disease, mutation)
+        #Pop values above 50 create problems with display
+        if population > 50:
+            population = 50
+        selective = False
+        if request.form.get('selective'):
+            print("Selective")
+            selective = True
+        main(num_genes, gene_length, generations, population, selective, mutation)
         return render_template('result.html')
         
 @app.after_request
 def add_header(r):
-    """
-    Add headers to both force latest IE rendering engine or Chrome Frame,
-    and also to cache the rendered page for 10 minutes.
-    """
     r.headers["Pragma"] = "no-cache"
     r.headers["Expires"] = "0"
     r.headers['Cache-Control'] = 'public, max-age=0, no-cache, no-store, must-revalidate'

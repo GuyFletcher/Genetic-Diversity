@@ -2,11 +2,12 @@
    <body>
    
       <form action = "http://localhost:5000/result" method = "POST">
-         <p>Num Genes <input type = "text" name = "Genes" /></p>
-         <p>Genes Length<input type = "text" name = "GLength" /></p>
-         <p>Mutation rate <input type = "text" name = "Mutate" /></p>
-         <p>Num Generations <input type = "text" name = "Generations" /></p>
-         <p>Pop Size <input type = "text" name = "Population" /></p>
+         <p>Number of Genes per Chromosome <input type = "text" name = "Genes" /></p>
+         <p>Gene Length<input type = "text" name = "GLength" /></p>
+         <p>Mutation rate <input type = "text" name = "Mutate" /> (Max 300, 100 = 1%)</p>
+         <p>Number of Generations <input type = "text" name = "Generations" /></p>
+         <p>Starting Population Size <input type = "text" name = "Population" /></p>
+         <p>Selective Breeding <input type = "checkbox" name = "selective" /></p>
          <p><input type = "submit" value = "submit" /></p>
       </form>
       
